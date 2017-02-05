@@ -11,6 +11,8 @@ class FSM {
         this.state = config.initial;
         this.start = config.initial;
         this.states = config.states;
+        this.tmp = config.initial;
+        this.tmpTwo = config.initial;
     }
 
     /**
@@ -28,6 +30,8 @@ class FSM {
     changeState(state) {
         this.state = state;
 
+        this.tmp = this.state;
+
         if(this.states[this.state].transitions[!state]) {
             throw new Error("Error");
         }
@@ -39,6 +43,7 @@ class FSM {
      */
     trigger(event) {
         this.state = this.states[this.state].transitions[event];
+        this.tmpTwo = this.state;
         if(this.states[this.state].transitions[!event]) {
             throw new Error("Error");
         }
@@ -86,6 +91,17 @@ class FSM {
             return false;
         }
 
+        if(this.tmp == this.state) {
+            var mass = [], lengths = 0;
+            for (var k in this.states) {
+                mass[lengths] = k;
+                if(this.state == mass[lengths]) {
+                    this.state = mass[lengths - 1];
+                }
+                lengths++;
+            }
+        }
+
         var mas = [], length = 0;
         for (var z in this.states) {
             mas[length] = z;
@@ -93,6 +109,10 @@ class FSM {
                 this.state = mas[length - 1];
             }
             length++;
+        }
+
+        if(this.tmpTwo) {
+            return true;
         }
     }
 
@@ -102,15 +122,22 @@ class FSM {
      * @returns {Boolean}
      */
     redo() {
+        this.state = this.tmpTwo;
+
         if(this.start === this.state) {
             return false;
+        }
+
+        if(this.tmpTwo) {
+            return true;
         }
     }
 
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+    }
 }
 
 module.exports = FSM;
